@@ -33,6 +33,7 @@ class Communication:
 
     self.acc_pub = rospy.Publisher("/crazyflie/Acceleration", Acceleration)
     self.ori_pub = rospy.Publisher("/crazyflie/Orientation", Orientation)
+    self.ori_sub = rospy.Subscriber("/crazyflie/OrientationSetPoint", Orientation, self.set_point_callback)
 
   def connectSetupFinished(self, linkURI):
     rospy.loginfo("Connected on %s"%linkURI)
@@ -90,6 +91,9 @@ class Communication:
     #print data["stabilizer.pitch"], data["stabilizer.yaw"], data["stabilizer.roll"], data["stabilizer.thrust"]
     self.ori_pub.publish(data["stabilizer.pitch"], data["stabilizer.yaw"], data["stabilizer.roll"], data["stabilizer.thrust"])
     #rospy.loginfo(str(data))
+
+  def set_point_callback(self, data):
+    self.crazyflie.commander.send_setpoint(data.pitch, data.yaw, -1*data.roll, data.thrust)
 
 
 if __name__ == '__main__':
